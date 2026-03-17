@@ -383,8 +383,18 @@ class SimulationRunner:
         else:
             cls._graph_memory_enabled[simulation_id] = False
         
-        # 确定运行哪个脚本（脚本位于 backend/scripts/ 目录）
-        if platform == "twitter":
+        # Determine which script to run (scripts in backend/scripts/)
+        # Try LLM-powered engine first (no camel-oasis dependency)
+        llm_script = os.path.join(cls.SCRIPTS_DIR, "run_llm_simulation.py")
+        use_llm_engine = os.path.exists(llm_script)
+        
+        if use_llm_engine:
+            # Use LLM-powered simulation (runs both platforms in one process)
+            script_name = "run_llm_simulation.py"
+            state.twitter_running = True
+            state.reddit_running = True
+            logger.info("Using LLM-powered simulation engine (OASIS-free)")
+        elif platform == "twitter":
             script_name = "run_twitter_simulation.py"
             state.twitter_running = True
         elif platform == "reddit":

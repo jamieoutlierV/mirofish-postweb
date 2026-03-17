@@ -27,6 +27,9 @@ class LLMClient:
         if not self.api_key:
             raise ValueError("LLM_API_KEY 未配置")
         
+        # Detect if using Anthropic endpoint
+        self._is_anthropic = 'anthropic' in (self.base_url or '').lower()
+        
         self.client = OpenAI(
             api_key=self.api_key,
             base_url=self.base_url
@@ -59,7 +62,11 @@ class LLMClient:
         }
         
         if response_format:
-            kwargs["response_format"] = response_format
+            # Anthropic's OpenAI-compatible endpoint ignores json_object but
+            # accepts json_schema. Skip response_format for Anthropic and
+            # rely on prompt-based JSON instruction instead.
+            if not self._is_anthropic:
+                kwargs["response_format"] = response_format
         
         response = self.client.chat.completions.create(**kwargs)
         content = response.choices[0].message.content
@@ -84,6 +91,22 @@ class LLMClient:
         Returns:
             解析后的JSON对象
         """
+        # For Anthropic, add explicit JSON instruction to system message
+        # since response_format is not supported
+        if self._is_anthropic:
+            json_instruction = "\nIMPORTANT: You MUST respond with valid JSON only. No markdown code blocks, no explanation text — just the raw JSON object."
+            patched_messages = []
+            has_system = False
+            for msg in messages:
+                if msg.get("role") == "system":
+                    patched_messages.append({**msg, "content": msg["content"] + json_instruction})
+                    has_system = True
+                else:
+                    patched_messages.append(msg)
+            if not has_system:
+                patched_messages.insert(0, {"role": "system", "content": json_instruction.strip()})
+            messages = patched_messages
+        
         response = self.chat(
             messages=messages,
             temperature=temperature,

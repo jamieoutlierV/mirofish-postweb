@@ -234,6 +234,7 @@ class SimulationConfigGenerator:
         if not self.api_key:
             raise ValueError("LLM_API_KEY 未配置")
         
+        self._is_anthropic = 'anthropic' in (self.base_url or '').lower()
         self.client = OpenAI(
             api_key=self.api_key,
             base_url=self.base_url
@@ -439,16 +440,17 @@ class SimulationConfigGenerator:
         
         for attempt in range(max_attempts):
             try:
-                response = self.client.chat.completions.create(
+                _kwargs = dict(
                     model=self.model_name,
                     messages=[
-                        {"role": "system", "content": system_prompt},
+                        {"role": "system", "content": system_prompt + ("\nIMPORTANT: Respond with valid JSON only." if self._is_anthropic else "")},
                         {"role": "user", "content": prompt}
                     ],
-                    response_format={"type": "json_object"},
                     temperature=0.7 - (attempt * 0.1)  # 每次重试降低温度
-                    # 不设置max_tokens，让LLM自由发挥
                 )
+                if not self._is_anthropic:
+                    _kwargs["response_format"] = {"type": "json_object"}
+                response = self.client.chat.completions.create(**_kwargs)
                 
                 content = response.choices[0].message.content
                 finish_reason = response.choices[0].finish_reason
