@@ -857,6 +857,31 @@ CHAT_OBSERVATION_SUFFIX = "\n\n请简洁回答问题。"
 
 
 # ═══════════════════════════════════════════════════════════════
+# Language Override: import English prompts when REPORT_LANGUAGE=en
+# ═══════════════════════════════════════════════════════════════
+
+_report_lang = os.environ.get('REPORT_LANGUAGE', 'zh').lower()
+if _report_lang == 'en':
+    from .report_prompts_en import (
+        PLAN_SYSTEM_PROMPT,
+        PLAN_USER_PROMPT_TEMPLATE,
+        SECTION_SYSTEM_PROMPT_TEMPLATE,
+        SECTION_USER_PROMPT_TEMPLATE,
+        REACT_OBSERVATION_TEMPLATE,
+        REACT_INSUFFICIENT_TOOLS_MSG,
+        REACT_INSUFFICIENT_TOOLS_MSG_ALT,
+        REACT_TOOL_LIMIT_MSG,
+        REACT_UNUSED_TOOLS_HINT,
+        REACT_FORCE_FINAL_MSG,
+        CHAT_SYSTEM_PROMPT_TEMPLATE,
+        CHAT_OBSERVATION_SUFFIX,
+    )
+    logger.info("Report language set to ENGLISH with Outlier Ventures branding")
+else:
+    logger.info(f"Report language: {_report_lang} (default Chinese prompts)")
+
+
+# ═══════════════════════════════════════════════════════════════
 # ReportAgent 主类
 # ═══════════════════════════════════════════════════════════════
 
