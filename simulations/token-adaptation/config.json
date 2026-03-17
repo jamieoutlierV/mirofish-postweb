@@ -1,0 +1,5 @@
+{
+  "project_name": "Token Economy Adaptation to Post-Web",
+  "simulation_requirement": "Simulate how existing crypto token economies — DeFi protocols, L1 chains, DAOs — respond when conviction-based coordination mechanisms replace speculation-driven token models. Model the social dynamics between speculative traders, long-term builders, institutional holders, and AI agents as protocols transition from attention-economy tokens to intention-economy instruments. Explore resistance patterns, coalition formation, competitive contagion, and the emergence of a bifurcated market.",
+  "additional_context": "Based on the Post-Web thesis by Outlier Ventures (Jamie Burke). The framework argues that the attention economy collapses when AI agents become primary users, requiring new token primitives based on conviction rather than prediction. Conviction Markets are a specific proposed mechanism. The simulation should explore both successful and failed transitions across different protocol types."
+}
